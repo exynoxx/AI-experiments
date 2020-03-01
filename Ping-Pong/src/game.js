@@ -29,11 +29,16 @@ let myGameArea = {
 
 function startGame() {
     gameObjects.push(new ball(10,10,"#F00",50,500));
+    gameObjects.push(new ball(10,10,"#0F0",40,30));
+    gameObjects.push(new ball(10,10,"#F0F",1,560));
+    gameObjects.push(new ball(10,10,"#FF0",500,55));
+    gameObjects.push(new ball(10,10,"#00F",21,20));
     gameObjects.push(new plate(100,5,"#000",500,670));
     myGameArea.start();
 }
 
 function ball(width, height, color, x, y) {
+    this.type = 1;
     this.width = width;
     this.height = height;
     this.x = x;
@@ -58,7 +63,8 @@ function ball(width, height, color, x, y) {
         if(this.x < 0 || this.x > myGameArea.canvas.width) this.dx = -this.dx;
         if(this.y < 0 || this.y > myGameArea.canvas.height) this.dy = -this.dy;
 
-        for (let i = 1; i < gameObjects.length; i++) {
+        for (let i = 0; i < gameObjects.length; i++) {
+            if (gameObjects[i].type === 1) continue;
             let otherobj = gameObjects[i];
             var otherleft = otherobj.x;
             var otherright = otherobj.x + (otherobj.width);
@@ -76,6 +82,7 @@ function ball(width, height, color, x, y) {
 }
 
 function plate(width, height, color, x, y) {
+    this.type = 0;
     this.width = width;
     this.height = height;
     this.x = x;
