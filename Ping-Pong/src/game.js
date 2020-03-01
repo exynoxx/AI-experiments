@@ -28,26 +28,26 @@ let myGameArea = {
 };
 
 function startGame() {
-    gameObjects.push(new ball(10,10,"#F00",50,50));
+    gameObjects.push(new ball(10,10,"#F00",50,500));
     gameObjects.push(new plate(100,5,"#000",500,670));
     myGameArea.start();
 }
-
 
 function ball(width, height, color, x, y) {
     this.width = width;
     this.height = height;
     this.x = x;
     this.y = y;
-    this.dx = 3;
-    this.dy = 3;
+    this.dx = 5;
+    this.dy = 5;
+    this.r = 10;
     this.crashAble = [];
     this.ddraw = function () {
         let ctx = myGameArea.context;
         ctx.fillStyle = color;
         //ctx.fillRect(this.x, this.y, this.width, this.height);
         ctx.beginPath();
-        ctx.arc(this.x, this.y, 10, 0, 2 * Math.PI);
+        ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
         ctx.stroke();
         ctx.fill();
     }
@@ -57,23 +57,21 @@ function ball(width, height, color, x, y) {
         //let dy = parseInt(this.velocity * Math.sin(this.angle));
         if(this.x < 0 || this.x > myGameArea.canvas.width) this.dx = -this.dx;
         if(this.y < 0 || this.y > myGameArea.canvas.height) this.dy = -this.dy;
+
+        for (let i = 1; i < gameObjects.length; i++) {
+            let otherobj = gameObjects[i];
+            var otherleft = otherobj.x;
+            var otherright = otherobj.x + (otherobj.width);
+            var othertop = otherobj.y;
+            var otherbottom = otherobj.y + (otherobj.height);
+            if((this.y > othertop-this.r) && (this.y < otherbottom+ this.r)&&(this.x > otherleft-this.r) && (this.x < otherright+this.r)) this.dy = -this.dy;
+        }
+
+
+
+
         this.x += this.dx;
         this.y += this.dy;
-    }
-    this.crashWith = function (otherobj) {
-        var myleft = this.x;
-        var myright = this.x + (this.width);
-        var mytop = this.y;
-        var mybottom = this.y + (this.height);
-        var otherleft = otherobj.x;
-        var otherright = otherobj.x + (otherobj.width);
-        var othertop = otherobj.y;
-        var otherbottom = otherobj.y + (otherobj.height);
-        var crash = true;
-        if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
-            crash = false;
-        }
-        return crash;
     }
 }
 
