@@ -7,9 +7,9 @@ let config = {
         {nodeCount: 3, type: "input"},
         {nodeCount: 2, type: "output", activationfunc: activation.SOFTMAX}
     ],
-    mutationRate: 0.3,
+    mutationRate: 0.1,
     crossoverMethod: crossover.RANDOM,
-    mutationMethod: mutate.INCREMENTAL,
+    mutationMethod: mutate.RANDOM,
     populationSize: 100
 };
 
@@ -20,8 +20,10 @@ var right = false;
 document.onkeydown = function(e) {
     if(e.keyCode === 37) left = true;
     if(e.keyCode === 39) right = true;
-    for (let i = 0; i < 100; i++) {
-        plates[i].x = 0;
+    if(e.keyCode === 32) {
+        for (let i = 0; i < 100; i++) {
+            balls[i].alive = false;
+        }
     }
 };
 document.onkeyup = function(e) {
@@ -44,20 +46,27 @@ let myGameArea = {
     }
 };
 
-function startGame() {
-    neat = new NEAT(config);
+function spawnPlayers() {
+    balls = [];
+    plates = [];
+    gameObjects = [];
     for (let i = 0; i < 100; i++) {
-        let ran = Math.round(Math.random() * 500);
-
-        let p = new plate(100,5,"#000",ran,670);
-        let b = new ball(10,10,"#0F0",ran,ran);
+        let ran1 = Math.round(Math.random() * 500);
+        let ran2 = Math.round(Math.random() * 500);
+        let p = new plate(60, 5, "#000", ran2, 670);
+        let b = new ball(10, 10, "#0F0", ran1, ran2);
         plates.push(p);
         balls.push(b);
         b.crashAble.push(p);
         gameObjects.push(p);
         gameObjects.push(b);
     }
+}
+
+function startGame() {
+    neat = new NEAT(config);
     myGameArea.initGame();
+    spawnPlayers();
     runIteration();
 }
 
@@ -73,8 +82,10 @@ function ball(width, height, color, x, y) {
     this.height = height;
     this.x = x;
     this.y = y;
-    this.dx = 5;
-    this.dy = 5;
+    let v = 5;
+    let angle = Math.random()*Math.PI/2+0.5;
+    this.dx = v*Math.cos(angle);
+    this.dy = v*Math.sin(angle);
     this.r = 10;
     this.crashAble = [];
     this.ddraw = function () {
@@ -90,7 +101,9 @@ function ball(width, height, color, x, y) {
 
         //let dx = parseInt(this.velocity * Math.cos(this.angle));
         //let dy = parseInt(this.velocity * Math.sin(this.angle));
-        if(this.x < 0 || this.x > myGameArea.canvas.width) this.dx = -this.dx;
+        if(this.x < 0 || this.x > myGameArea.canvas.width) {
+            this.dx = -this.dx;
+        }
         if(this.y < 0) this.dy = -this.dy;
         if(this.y > myGameArea.canvas.height) {
             this.alive=false;
@@ -211,19 +224,7 @@ function updateGameArea() {
         for (let i = 0; i < 100; i++) {
             neat.setFitness(balls[i].score, i);
         }
-        balls = [];
-        plates = [];
-        gameObjects = [];
-        for (let i = 0; i < 100; i++) {
-            let ran = Math.round(Math.random() * 500);
-            let p = new plate(100,5,"#000",ran,670);
-            let b = new ball(10,10,"#0F0",ran,ran);
-            plates.push(p);
-            balls.push(b);
-            b.crashAble.push(p);
-            gameObjects.push(p);
-            gameObjects.push(b);
-        }
+        spawnPlayers();
         neat.doGen();
     }
 
