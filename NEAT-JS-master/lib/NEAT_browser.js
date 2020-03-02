@@ -340,6 +340,11 @@ let mutate = { // Mutation function (More to come!).
 			if (Math.random() < mutationRate) genes[i] = (Math.random() * 2) - 1;
 		}
 		return genes;
+	},
+	INCREMENTAL: function (genes,mutationRate) {
+		for (let i = 0; i < genes.length; i++) {
+			if (Math.random() < mutationRate) genes[i] += (Math.random() * 2) - 1;
+		}
 	}
 }
 
