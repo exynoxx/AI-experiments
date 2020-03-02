@@ -7,9 +7,9 @@ let config = {
         {nodeCount: 3, type: "input"},
         {nodeCount: 2, type: "output", activationfunc: activation.SOFTMAX}
     ],
-    mutationRate: 0.1,
+    mutationRate: 0.3,
     crossoverMethod: crossover.RANDOM,
-    mutationMethod: mutate.RANDOM,
+    mutationMethod: mutate.INCREMENTAL,
     populationSize: 100
 };
 
@@ -20,6 +20,9 @@ var right = false;
 document.onkeydown = function(e) {
     if(e.keyCode === 37) left = true;
     if(e.keyCode === 39) right = true;
+    for (let i = 0; i < 100; i++) {
+        plates[i].x = 0;
+    }
 };
 document.onkeyup = function(e) {
     if(e.keyCode == 37) left = false;
@@ -60,13 +63,6 @@ function startGame() {
 
 function runIteration() {
     setInterval(updateGameArea, 10);
-    setInterval(function () {
-        for (let i = 0; i < balls.length; i++) {
-            if (!balls[i].alive){
-
-            }
-        }
-    },500);
 }
 
 function ball(width, height, color, x, y) {
@@ -200,7 +196,7 @@ function updateGameArea() {
     //eval
     neat.feedForward();
 
-    //results
+    //resultsi
     let desicions = neat.getDesicions();
     for (let i = 0; i < 100; i++) {
         if (desicions[i] === 0) {
@@ -211,15 +207,24 @@ function updateGameArea() {
     }
     let finish = balls.every(x=>!x.alive);
     if (finish) {
+        console.log("finish!");
         for (let i = 0; i < 100; i++) {
             neat.setFitness(balls[i].score, i);
+        }
+        balls = [];
+        plates = [];
+        gameObjects = [];
+        for (let i = 0; i < 100; i++) {
             let ran = Math.round(Math.random() * 500);
-            balls[i] = new ball(10,10,"#0F0",ran,ran);
+            let p = new plate(100,5,"#000",ran,670);
+            let b = new ball(10,10,"#0F0",ran,ran);
+            plates.push(p);
+            balls.push(b);
+            b.crashAble.push(p);
+            gameObjects.push(p);
+            gameObjects.push(b);
         }
         neat.doGen();
     }
-
-
-
 
 }
