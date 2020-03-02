@@ -65,6 +65,7 @@ function ball(myGameArea, width, height, color, x, y) {
 
             if(below && over&&left && right) {
                 this.dy = -this.dy;
+                this.dx += (Math.random()*2-1)/10;
                 this.score+=1;
             }
         }
