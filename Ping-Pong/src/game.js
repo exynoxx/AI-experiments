@@ -16,18 +16,18 @@ let config = {
     populationSize: population
 };
 
-document.onkeydown = function(e) {
-    if(e.keyCode === 37) plates[0].left = true;
-    if(e.keyCode === 39) plates[0].right = true;
-    if(e.keyCode === 32) {
+document.onkeydown = function (e) {
+    if (e.keyCode === 37) plates[0].left = true;
+    if (e.keyCode === 39) plates[0].right = true;
+    if (e.keyCode === 32) {
         for (let i = 0; i < population; i++) {
             balls[i].alive = false;
         }
     }
 };
-document.onkeyup = function(e) {
-    if(e.keyCode == 37) plates[0].left = false;
-    if(e.keyCode == 39) plates[0].right = false;
+document.onkeyup = function (e) {
+    if (e.keyCode == 37) plates[0].left = false;
+    if (e.keyCode == 39) plates[0].right = false;
 }
 
 let myGameArea = {
@@ -49,16 +49,36 @@ function spawnPlayers() {
     balls = [];
     plates = [];
     gameObjects = [];
+
+    rans = [];
+    let spacing = 10;
+    let w = 50;
+    let h = 20;
+    for (let i = 0; i < 10; i++) {
+        for (let j = 0; j < 2; j++) {
+            rans += [spacing+i*w, spacing+j*h];
+        }
+    }
+
     for (let i = 0; i < population; i++) {
         let ran1 = Math.round(Math.random() * 500);
         let ran2 = Math.round(Math.random() * 500);
-        let p = new plate(myGameArea,80, 5, "#000", ran2, 670);
-        let b = new ball(myGameArea,10, 10, "#0F0", ran1, ran2);
+        let p = new plate(myGameArea, 80, 5, "#000", ran2, 670);
+        let b = new ball(myGameArea, 10, "#0F0", ran1, ran2);
+
+        for (let e in rans){
+            let block = new box(myGameArea,w,h,"#0FF",e[0],e[1]);
+            b.crashAble.push(block);
+            gameObjects.push(block);
+        }
+
         plates.push(p);
-        balls.push(b);
         b.crashAble.push(p);
+        balls.push(b);
         gameObjects.push(p);
         gameObjects.push(b);
+
+
     }
 }
 
@@ -71,14 +91,15 @@ function startGame() {
         var alive = 0;
         var bestScore = 0;
         for (let i = 0; i < population; i++) {
-            if (balls[i].alive){
+            if (balls[i].alive) {
                 alive++;
-                bestScore = Math.max(bestScore,balls[i].score);
+                bestScore = Math.max(bestScore, balls[i].score);
             }
         }
-        console.log("alive: "+alive+" - bestScore: "+bestScore);
-    },2000);
+        console.log("alive: " + alive + " - bestScore: " + bestScore);
+    }, 2000);
 }
+
 function updateGameArea() {
 
     //draw
@@ -89,10 +110,10 @@ function updateGameArea() {
         gameObjects[i].ddraw();
     }
 
-    if(aiEnabled){
+    if (aiEnabled) {
         //neural information to the NN
         for (let i = 0; i < population; i++) {
-            let inn=[plates[i].x,   balls[i].x,  plates[i].x-balls[i].x];
+            let inn = [plates[i].x, balls[i].x, plates[i].x - balls[i].x];
             neat.setInputs(inn, i);
         }
 
@@ -101,7 +122,7 @@ function updateGameArea() {
 
         //resultsi
         let desicions = neat.getDesicions();
-        for (let i = 0; i <population; i++) {
+        for (let i = 0; i < population; i++) {
             if (desicions[i] === 0) {
                 plates[i].left = true;
             } else {
@@ -109,7 +130,7 @@ function updateGameArea() {
             }
         }
 
-        let finish = balls.every(x=>!x.alive);
+        let finish = balls.every(x => !x.alive);
         if (finish) {
             console.log("finish!");
             for (let i = 0; i < population; i++) {
