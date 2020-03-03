@@ -52,7 +52,7 @@ function spawnPlayers() {
     for (let i = 0; i < population; i++) {
         let ran1 = Math.round(Math.random() * 500);
         let ran2 = Math.round(Math.random() * 500);
-        let p = new plate(myGameArea,60, 5, "#000", ran2, 670);
+        let p = new plate(myGameArea,80, 5, "#000", ran2, 670);
         let b = new ball(myGameArea,10, 10, "#0F0", ran1, ran2);
         plates.push(p);
         balls.push(b);
@@ -67,6 +67,17 @@ function startGame() {
     myGameArea.initGame();
     spawnPlayers();
     setInterval(updateGameArea, 10);
+    setInterval(function () {
+        var alive = 0;
+        var bestScore = 0;
+        for (let i = 0; i < population; i++) {
+            if (balls[i].alive){
+                alive++;
+                bestScore = Math.max(bestScore,balls[i].score);
+            }
+        }
+        console.log("alive: "+alive+" - bestScore: "+bestScore);
+    },2000);
 }
 function updateGameArea() {
 

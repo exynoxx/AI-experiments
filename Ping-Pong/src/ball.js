@@ -6,10 +6,10 @@ function ball(myGameArea, width, height, color, x, y) {
     this.height = height;
     this.x = x;
     this.y = y;
-    let v = 5;
-    let angle = Math.random()*Math.PI/2+0.5;
-    this.dx = v*Math.cos(angle);
-    this.dy = v*Math.sin(angle);
+    this.v = 5;
+    let angle = Math.random() * Math.PI / 2 + 0.5;
+    this.dx = this.v * Math.cos(angle);
+    this.dy = this.v * Math.sin(angle);
     this.r = 10;
     this.crashAble = [];
     this.ddraw = function () {
@@ -25,15 +25,15 @@ function ball(myGameArea, width, height, color, x, y) {
 
         //let dx = parseInt(this.velocity * Math.cos(this.angle));
         //let dy = parseInt(this.velocity * Math.sin(this.angle));
-        if(this.x < 0 || this.x > myGameArea.canvas.width) {
+        if (this.x < 0 || this.x > myGameArea.canvas.width) {
             this.dx = -this.dx;
         }
-        if(this.y < 0) this.dy = -this.dy;
-        if(this.y > myGameArea.canvas.height) {
-            this.alive=false;
+        if (this.y < 0) this.dy = -this.dy;
+        if (this.y > myGameArea.canvas.height) {
+            this.alive = false;
             this.dy = 0;
             this.dx = 0;
-            this.crashAble[0].y = myGameArea.canvas.height-2;
+            this.crashAble[0].y = myGameArea.canvas.height - 2;
         }
 
         /*
@@ -63,10 +63,14 @@ function ball(myGameArea, width, height, color, x, y) {
 
             //console.log(below+" "+over+" "+left+" "+right);
 
-            if(below && over&&left && right) {
-                this.dy = -this.dy;
-                this.dx += (Math.random()*2-1)/10;
-                this.score+=1;
+            if (below && over && left && right) {
+                let half = otherobj.width / 2;
+                let a = this.x - (otherobj.x + half);
+                let b = a / half;
+                let angle = (-b * 2 * Math.PI / 5) + (Math.PI / 2);
+                this.dx = this.v * Math.cos(angle);
+                this.dy = -this.v * Math.sin(angle);
+                this.score += 1;
             }
         }
         this.x += this.dx;
