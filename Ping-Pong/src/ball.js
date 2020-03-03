@@ -1,16 +1,14 @@
-function ball(myGameArea, width, height, color, x, y) {
+function ball(myGameArea, radius, color, x, y) {
     this.type = 1;
     this.alive = true;
     this.score = 0;
-    this.width = width;
-    this.height = height;
     this.x = x;
     this.y = y;
     this.v = 5;
     let angle = Math.random() * Math.PI / 2 + 0.5;
     this.dx = this.v * Math.cos(angle);
     this.dy = this.v * Math.sin(angle);
-    this.r = 10;
+    this.r = radius;
     this.crashAble = [];
     this.ddraw = function () {
         let ctx = myGameArea.context;
@@ -55,22 +53,28 @@ function ball(myGameArea, width, height, color, x, y) {
             var othertop = otherobj.y;
             var otherbottom = otherobj.y + (otherobj.height);
 
-            let below = this.y > othertop - this.r;
-            let over = this.y < otherbottom + this.r;
+            let bottom = this.y - this.r < otherbottom;
+            let top = this.y + this.r > othertop;
+
             let left = this.x > otherleft;
             let right = this.x < otherright;
 
 
             //console.log(below+" "+over+" "+left+" "+right);
 
-            if (below && over && left && right) {
-                let half = otherobj.width / 2;
-                let a = this.x - (otherobj.x + half);
-                let b = a / half;
-                let angle = (-b * 2 * Math.PI / 5) + (Math.PI / 2);
-                this.dx = this.v * Math.cos(angle);
-                this.dy = -this.v * Math.sin(angle);
-                this.score += 1;
+            if (left && right && bottom && top) {
+                if (otherobj.type == 0) {
+                    let half = otherobj.width / 2;
+                    let a = this.x - (otherobj.x + half);
+                    let b = a / half;
+                    let angle = (-b * 2 * Math.PI / 5) + (Math.PI / 2);
+                    this.dx = this.v * Math.cos(angle);
+                    this.dy = -this.v * Math.sin(angle);
+                    this.score += 1;
+                } else {
+                    this.dx = -this.dx;
+                    this.dy = -this.dy;
+                }
             }
         }
         this.x += this.dx;
