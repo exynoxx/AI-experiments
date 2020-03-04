@@ -7,7 +7,8 @@ let aiEnabled = true;
 
 let config = {
     model: [
-        {nodeCount: 3, type: "input"},
+        {nodeCount: 4, type: "input"},
+        {nodeCount: 5, type: "hidden", activationfunc: activation.RELU},
         {nodeCount: 2, type: "output", activationfunc: activation.SOFTMAX}
     ],
     mutationRate: 0.1,
@@ -50,35 +51,32 @@ function spawnPlayers() {
     plates = [];
     gameObjects = [];
 
-    rans = [];
-    let spacing = 10;
+    let spacing = 6;
     let w = 50;
     let h = 20;
-    for (let i = 0; i < 10; i++) {
-        for (let j = 0; j < 2; j++) {
-            rans += [spacing+i*w, spacing+j*h];
+    let blocks = [];
+
+    for (let i = 0; i < 18; i++) {
+        for (let j = 0; j < 4; j++) {
+            let block = new box(myGameArea, w, h, "#0FF", (spacing+w)*i, (spacing+h)*j);
+            gameObjects.push(block);
+            blocks.push(block)
         }
     }
 
     for (let i = 0; i < population; i++) {
         let ran1 = Math.round(Math.random() * 500);
-        let ran2 = Math.round(Math.random() * 500);
+        let ran2 = Math.round(Math.random() * 200) + 200;
         let p = new plate(myGameArea, 80, 5, "#000", ran2, 670);
         let b = new ball(myGameArea, 10, "#0F0", ran1, ran2);
-
-        for (let e in rans){
-            let block = new box(myGameArea,w,h,"#0FF",e[0],e[1]);
-            b.crashAble.push(block);
-            gameObjects.push(block);
-        }
-
         plates.push(p);
         b.crashAble.push(p);
         balls.push(b);
+        for(let e of blocks){
+            b.crashAble.push(e);
+        }
         gameObjects.push(p);
         gameObjects.push(b);
-
-
     }
 }
 
@@ -113,7 +111,7 @@ function updateGameArea() {
     if (aiEnabled) {
         //neural information to the NN
         for (let i = 0; i < population; i++) {
-            let inn = [plates[i].x, balls[i].x, plates[i].x - balls[i].x];
+            let inn = [plates[i].x, balls[i].x, plates[i].x - balls[i].x, balls[i].y];
             neat.setInputs(inn, i);
         }
 
