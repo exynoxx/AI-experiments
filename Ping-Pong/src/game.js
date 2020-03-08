@@ -25,6 +25,10 @@ document.onkeydown = function (e) {
             balls[i].alive = false;
         }
     }
+    if(e.keyCode == 83) {
+        population = 1;
+        spawnPlayers();
+    }
 };
 document.onkeyup = function (e) {
     if (e.keyCode == 37) plates[0].left = false;
