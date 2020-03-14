@@ -61,7 +61,6 @@ Example.newtonsCradle = function () {
             }
         });
 
-
         var connector = Matter.Constraint.create({
             bodyA: t,
             bodyB: cart,
@@ -76,35 +75,37 @@ Example.newtonsCradle = function () {
     };
 
 
-    World.add(world, new balancer());
+    let b = new balancer();
+    World.add(world, b);
 
     World.add(world, [
         // walls
-        Matter.Bodies.rectangle(sceneW / 2, 0, sceneW, 10, {isStatic: true, render: {fillStyle: "#f00"}}),
-        Matter.Bodies.rectangle(sceneW / 2, sceneH, sceneW, 10, {isStatic: true, render: {fillStyle: "#f00"}}),
-        Matter.Bodies.rectangle(0, sceneH / 2, 10, sceneH, {isStatic: true, render: {fillStyle: "#f00"}}),
-        Matter.Bodies.rectangle(sceneW, sceneH / 2, 10, sceneH, {isStatic: true, render: {fillStyle: "#f00"}})
+        Matter.Bodies.rectangle(sceneW / 2, 0, sceneW, 10, {isStatic: true, render: {fillStyle: "#000"}}),
+        Matter.Bodies.rectangle(sceneW / 2, sceneH, sceneW, 10, {isStatic: true, render: {fillStyle: "#000"}}),
+        Matter.Bodies.rectangle(0, sceneH / 2, 10, sceneH, {isStatic: true, render: {fillStyle: "#000"}}),
+        Matter.Bodies.rectangle(sceneW, sceneH / 2, 10, sceneH, {isStatic: true, render: {fillStyle: "#000"}})
     ]);
 
-    /*    var balancer = function (x, y, r, l) {
-            var container = Matter.Composite.create({label: 'cunt'});
-            var cart = Matter.Bodies.rectangle(x, y, 50, 30);
-            var circle = Matter.Bodies.circle(x, y-100, r, {
-                inertia: Infinity,
-                restitution: 1,
-                friction: 0,
-                frictionAir: 0.0001,
-                slop: 1
-            });
-            Matter.Composite.addBody(container, cart);
-            Matter.Composite.addBody(container, circle);
-            Composites.chain(container);
-            return container;
-        };
 
+    var left = false;
+    var right = false;
+    Matter.Events.on(engine, 'beforeUpdate', e=> {
+        if (left) {
+            Matter.Composite.translate(b, {x: -8, y: 0});
+            left = false;
+        }
+        if (right) {
+            Matter.Composite.translate(b, {x: 8, y: 0});
+            right = false;
+        }
 
-        var balancer = balancer(500,sceneH-50,30,0);
-        World.add(world, balancer);*/
+    });
+
+    window.addEventListener("keydown", e=> {
+        e.stopPropagation();
+        if (e.keyCode === 37) left = true;
+        if (e.keyCode === 39) right = true;
+    });
 
 
     // add mouse control
