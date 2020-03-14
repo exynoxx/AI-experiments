@@ -35,14 +35,48 @@ Example.newtonsCradle = function () {
     var runner = Runner.create();
     Runner.run(runner, engine);
 
-   // add bodies
-    var cradle = Composites.newtonsCradle(280, 100, 7, 30, 200);
-    World.add(world, cradle);
-    Body.translate(cradle.bodies[0], {x: -180, y: -100});
+    var balancer = function () {
+        var container = Matter.Composite.create();
+        var vertices = [
+            {x: 0, y: 0},
+            {x: 110, y: 0},
+            {x: 110, y: 10},
+            {x: 60, y: 10},
+            {x: 60, y: 100},
+            {x: 50, y: 100},
+            {x: 50, y: 10},
+            {x: 0, y: 10},
+            {x: 0, y: 0}
+        ];
+        var group = Body.nextGroup(true);
 
-    cradle = Composites.newtonsCradle(280, 380, 7, 20, 140);
-    World.add(world, cradle);
-    Body.translate(cradle.bodies[0], {x: -140, y: -100});
+        var t = Matter.Bodies.fromVertices(400, 200, vertices, {
+            collisionFilter: {
+                group: group
+            }
+        });
+        var cart = Matter.Bodies.rectangle(400, 280, 80, 20, {
+            collisionFilter: {
+                group: group
+            }
+        });
+
+
+        var connector = Matter.Constraint.create({
+            bodyA: t,
+            bodyB: cart,
+            pointA: {x: 0, y: 80},
+            stiffness: 0,
+            length: 0
+        });
+        Matter.Composite.addBody(container, t);
+        Matter.Composite.addBody(container, cart);
+        Matter.Composite.addConstraint(container, connector);
+        return container;
+    };
+
+
+    World.add(world, new balancer());
 
     World.add(world, [
         // walls
@@ -52,25 +86,25 @@ Example.newtonsCradle = function () {
         Matter.Bodies.rectangle(sceneW, sceneH / 2, 10, sceneH, {isStatic: true, render: {fillStyle: "#f00"}})
     ]);
 
-/*    var balancer = function (x, y, r, l) {
-        var container = Matter.Composite.create({label: 'cunt'});
-        var cart = Matter.Bodies.rectangle(x, y, 50, 30);
-        var circle = Matter.Bodies.circle(x, y-100, r, {
-            inertia: Infinity,
-            restitution: 1,
-            friction: 0,
-            frictionAir: 0.0001,
-            slop: 1
-        });
-        Matter.Composite.addBody(container, cart);
-        Matter.Composite.addBody(container, circle);
-        Composites.chain(container);
-        return container;
-    };
+    /*    var balancer = function (x, y, r, l) {
+            var container = Matter.Composite.create({label: 'cunt'});
+            var cart = Matter.Bodies.rectangle(x, y, 50, 30);
+            var circle = Matter.Bodies.circle(x, y-100, r, {
+                inertia: Infinity,
+                restitution: 1,
+                friction: 0,
+                frictionAir: 0.0001,
+                slop: 1
+            });
+            Matter.Composite.addBody(container, cart);
+            Matter.Composite.addBody(container, circle);
+            Composites.chain(container);
+            return container;
+        };
 
 
-    var balancer = balancer(500,sceneH-50,30,0);
-    World.add(world, balancer);*/
+        var balancer = balancer(500,sceneH-50,30,0);
+        World.add(world, balancer);*/
 
 
     // add mouse control
