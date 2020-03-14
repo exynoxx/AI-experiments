@@ -42,8 +42,8 @@ Example.newtonsCradle = function () {
             {x: 110, y: 0},
             {x: 110, y: 10},
             {x: 60, y: 10},
-            {x: 60, y: 100},
-            {x: 50, y: 100},
+            {x: 60, y: 150},
+            {x: 50, y: 150},
             {x: 50, y: 10},
             {x: 0, y: 10},
             {x: 0, y: 0}
@@ -64,7 +64,7 @@ Example.newtonsCradle = function () {
         var connector = Matter.Constraint.create({
             bodyA: t,
             bodyB: cart,
-            pointA: {x: 0, y: 80},
+            pointA: {x: 0, y: 100},
             stiffness: 0,
             length: 0
         });
@@ -91,20 +91,27 @@ Example.newtonsCradle = function () {
     var right = false;
     Matter.Events.on(engine, 'beforeUpdate', e=> {
         if (left) {
-            Matter.Composite.translate(b, {x: -8, y: 0});
-            left = false;
+            Matter.Composite.translate(b, {x: -18, y: 0});
         }
         if (right) {
-            Matter.Composite.translate(b, {x: 8, y: 0});
-            right = false;
+            Matter.Composite.translate(b, {x: 18, y: 0});
         }
 
     });
 
     window.addEventListener("keydown", e=> {
-        e.stopPropagation();
-        if (e.keyCode === 37) left = true;
-        if (e.keyCode === 39) right = true;
+        if (e.keyCode === 37) {
+            left = true;
+            right=false;
+        }
+        if (e.keyCode === 39){
+            right = true;
+            left = false;
+        }
+    });
+    window.addEventListener("keyup", e=> {
+        if(left)left=false;
+        if(right)right=false;
     });
 
 
