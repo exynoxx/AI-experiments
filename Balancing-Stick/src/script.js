@@ -4,9 +4,9 @@ var sceneH = 700;
 let population = 100;
 let config = {
     model: [
-        {nodeCount: 3, type: "input"},
+        {nodeCount: 4, type: "input"},
         {nodeCount: 3, type: "hidden", activationfunc: activation.RELU},
-        {nodeCount: 2, type: "output", activationfunc: activation.SOFTMAX}
+        {nodeCount: 4, type: "output", activationfunc: activation.SOFTMAX}
     ],
     mutationRate: 0.1,
     crossoverMethod: crossover.RANDOM,
@@ -145,7 +145,7 @@ Matter.Events.on(engine, 'beforeUpdate', e => {
     //MISC
     for (let i = 0; i < population; i++) {
         //NN INPUT
-        let inn = [players[i].content[0].angle * 100, players[i].content[0].position.x, players[i].content[1].position.x];
+        let inn = [players[i].content[0].angle * 100, players[i].content[0].position.x, players[i].content[1].position.x,Math.abs(players[i].content[1].position.x-600)];
         neat.setInputs(inn, i);
 
         //UPDATE FITNESS
@@ -156,10 +156,10 @@ Matter.Events.on(engine, 'beforeUpdate', e => {
             players[i].alive = false;
         }
 
-        if (players[i].content[1].position.x < 50) {
+        if (players[i].content[1].position.x < 30) {
             players[i].alive = false;
         }
-        if (players[i].content[1].position.x > 1150) {
+        if (players[i].content[1].position.x > 1170) {
             players[i].alive = false;
         }
     }
@@ -170,11 +170,11 @@ Matter.Events.on(engine, 'beforeUpdate', e => {
     //NN RESULT -> DESCISION
     let desicions = neat.getDesicions();
     for (let i = 0; i < population; i++) {
-        if (desicions[i] === 0 && players[i].alive) {
-            Matter.Body.translate(players[i].content[1], {x: -18, y: 0});
-        } else {
-            Matter.Body.translate(players[i].content[1], {x: 18, y: 0});
-        }
+        if(!players[i].alive) continue;
+        if (desicions[i] === 0) Matter.Body.translate(players[i].content[1], {x: -40, y: 0});
+        if (desicions[i] === 1) Matter.Body.translate(players[i].content[1], {x: -5, y: 0});
+        if (desicions[i] === 2) Matter.Body.translate(players[i].content[1], {x: 40, y: 0});
+        if (desicions[i] ===3) Matter.Body.translate(players[i].content[1], {x: 5, y: 0});
     }
 });
 
