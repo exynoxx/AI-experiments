@@ -183,7 +183,7 @@ Matter.Events.on(engine, 'beforeUpdate', e => {
 
             }
             continue;
-        };
+        }
         if (desicions[i] === 0) Matter.Body.translate(players[i].content[1], {x: -40, y: 0});
         if (desicions[i] === 1) Matter.Body.translate(players[i].content[1], {x: -5, y: 0});
         if (desicions[i] === 2) Matter.Body.translate(players[i].content[1], {x: 40, y: 0});
