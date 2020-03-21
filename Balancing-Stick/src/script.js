@@ -5,7 +5,7 @@ let population = 100;
 let config = {
     model: [
         {nodeCount: 4, type: "input"},
-        {nodeCount: 3, type: "hidden", activationfunc: activation.RELU},
+        {nodeCount: 5, type: "hidden", activationfunc: activation.RELU},
         {nodeCount: 4, type: "output", activationfunc: activation.SOFTMAX}
     ],
     mutationRate: 0.1,
@@ -73,7 +73,7 @@ var player = function (x, y) {
         Matter.World.addBody(world, t);
         Matter.World.addBody(world, cart);
         Matter.World.addConstraint(world, connector);
-        return [t, cart,connector];
+        return [t, cart, connector];
     })();
 };
 
@@ -120,24 +120,28 @@ Matter.Render.run(render);
 var runner = Matter.Runner.create();
 Matter.Runner.run(runner, engine);
 
+function newGeneration() {
+    best = 0;
+    for (let i = 0; i < population; i++) {
+        best = Math.max(players[i].score, best);
+        neat.setFitness(players[i].score, i);
+        Matter.World.remove(world, players[i].content);
+    }
+    console.log("best score = " + best);
+    console.log(neat.export());
+    spawnPlayers();
+    neat.doGen();
+}
+
 var count = 0;
 Matter.Events.on(engine, 'beforeUpdate', e => {
     count++;
 
-    //finish check
-    if (count % 500) {
+//finish check
+    if (count % 1000) {
         if (players.every(x => !x.alive)) {
             console.log("finish!");
-            best = 0;
-            for (let i = 0; i < population; i++) {
-                best = Math.max(players[i].score,best);
-                neat.setFitness(players[i].score, i);
-                Matter.World.remove(world, players[i].content);
-            }
-            console.log("best score = "+best);
-            console.log(neat.export());
-            spawnPlayers();
-            neat.doGen();
+            newGeneration();
         }
     }
 
@@ -145,7 +149,7 @@ Matter.Events.on(engine, 'beforeUpdate', e => {
     //MISC
     for (let i = 0; i < population; i++) {
         //NN INPUT
-        let inn = [players[i].content[0].angle * 100, players[i].content[0].position.x, players[i].content[1].position.x,Math.abs(players[i].content[1].position.x-600)];
+        let inn = [players[i].content[0].angle * 100, players[i].content[0].position.x, players[i].content[1].position.x, Math.abs(players[i].content[1].position.x - 600)];
         neat.setInputs(inn, i);
 
         //UPDATE FITNESS
@@ -170,12 +174,44 @@ Matter.Events.on(engine, 'beforeUpdate', e => {
     //NN RESULT -> DESCISION
     let desicions = neat.getDesicions();
     for (let i = 0; i < population; i++) {
-        if(!players[i].alive) continue;
+        if (!players[i].alive) {
+            if(players[i].content[1].position.x>1400 ||players[i].content[1].position.x<-200) continue;
+            if(players[i].content[1].position.x>600){
+                Matter.Body.translate(players[i].content[1], {x: 5, y: 0});
+            }else{
+                Matter.Body.translate(players[i].content[1], {x: -5, y: 0});
+
+            }
+            continue;
+        };
         if (desicions[i] === 0) Matter.Body.translate(players[i].content[1], {x: -40, y: 0});
         if (desicions[i] === 1) Matter.Body.translate(players[i].content[1], {x: -5, y: 0});
         if (desicions[i] === 2) Matter.Body.translate(players[i].content[1], {x: 40, y: 0});
-        if (desicions[i] ===3) Matter.Body.translate(players[i].content[1], {x: 5, y: 0});
+        if (desicions[i] === 3) Matter.Body.translate(players[i].content[1], {x: 5, y: 0});
     }
+});
+
+
+window.addEventListener("keydown", e => {
+    if (e.keyCode === 32) {
+        newGeneration();
+    }
+    if (e.keyCode === 39) {
+        for (let i = 0; i < population; i++) {
+            if (!players[i].alive) continue;
+            Matter.Body.translate(players[i].content[1], {x: 200, y: 0});
+            Matter.Body.translate(players[i].content[0], {x: 200, y: 0});
+        }
+    }
+    if (e.keyCode === 37) {
+        for (let i = 0; i < population; i++) {
+            if (!players[i].alive) continue;
+            Matter.Body.translate(players[i].content[1], {x: -200, y: 0});
+            Matter.Body.translate(players[i].content[0], {x: -200, y: 0});
+        }
+    }
+
+
 });
 
 /*var left = false;
