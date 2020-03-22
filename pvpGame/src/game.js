@@ -49,36 +49,14 @@ let myGameArea = {
 };
 
 function spawnPlayers() {
-    balls = [];
-    plates = [];
-    gameObjects = [];
-
-    let spacing = 6;
-    let w = 50;
-    let h = 20;
-    let blocks = [];
-
-    for (let i = 0; i < 18; i++) {
-        for (let j = 0; j < 4; j++) {
-            let block = new box(myGameArea, w, h, "#0FF", (spacing+w)*i, (spacing+h)*j);
-            gameObjects.push(block);
-            blocks.push(block)
-        }
-    }
+    players = [];
 
     for (let i = 0; i < population; i++) {
-        let ran1 = Math.round(Math.random() * 500);
-        let ran2 = Math.round(Math.random() * 200) + 200;
-        let p = new plate(myGameArea, 80, 5, "#000", ran2, 670);
-        let b = new ball(myGameArea, 10, "#0F0", ran1, ran2);
-        plates.push(p);
-        b.crashAble.push(p);
-        balls.push(b);
-        for(let e of blocks){
-            b.crashAble.push(e);
-        }
-        gameObjects.push(p);
-        gameObjects.push(b);
+        let ranx = Math.round(Math.random() * 1000);
+        let rany = Math.round(Math.random() * 700);
+        let rana = Math.round(Math.random() * 2*Math.PI);
+        let p = new ball(myGameArea, rana, "#0F0", ranx, rany);
+        players.push(p);
     }
 }
 
@@ -105,39 +83,36 @@ function updateGameArea() {
     //draw
     myGameArea.clear();
     myGameArea.frameNo += 1;
-    for (var i = 0; i < gameObjects.length; i += 1) {
-        gameObjects[i].update();
-        gameObjects[i].ddraw();
+    for (var i = 0; i < players.length; i += 1) {
+        players[i].update();
+        players[i].ddraw();
+    }
+//neural information to the NN
+    for (let i = 0; i < population; i++) {
+        let inn = [];
+        neat.setInputs(inn, i);
     }
 
-    if (aiEnabled) {
-        //neural information to the NN
+    //eval
+    neat.feedForward();
+
+    //resultsi
+    let desicions = neat.getDesicions();
+    for (let i = 0; i < population; i++) {
+        if (desicions[i] === 0) {
+            players[i].left = true;
+        } else {
+            players[i].right = true;
+        }
+    }
+
+    let finish = players.every(x => !x.alive);
+    if (finish) {
+        console.log("finish!");
         for (let i = 0; i < population; i++) {
-            let inn = [plates[i].x, balls[i].x, plates[i].x - balls[i].x, balls[i].y];
-            neat.setInputs(inn, i);
+            neat.setFitness(players[i].score, i);
         }
-
-        //eval
-        neat.feedForward();
-
-        //resultsi
-        let desicions = neat.getDesicions();
-        for (let i = 0; i < population; i++) {
-            if (desicions[i] === 0) {
-                plates[i].left = true;
-            } else {
-                plates[i].right = true;
-            }
-        }
-
-        let finish = balls.every(x => !x.alive);
-        if (finish) {
-            console.log("finish!");
-            for (let i = 0; i < population; i++) {
-                neat.setFitness(balls[i].score, i);
-            }
-            spawnPlayers();
-            neat.doGen();
-        }
+        spawnPlayers();
+        neat.doGen();
     }
 }
